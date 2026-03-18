@@ -11,6 +11,7 @@ import {
   CROWN_MEANINGS, UNIVERSE_MEANINGS, SUPER_MEANINGS,
 } from "@/lib/chakraInterpretations";
 import { DeepAnalysisResult } from "@/app/api/deep-analysis/route";
+import { EnergeticAnalysisResult } from "@/app/api/energetic-diagnosis/route";
 
 interface Props {
   result: NumerologyResult;
@@ -82,15 +83,41 @@ function ChakraCard({ name, emoji, number, extra, meaning, bgClass, textClass, b
 
 export default function ResultsPage({ result, firstName, lastName, day, month, year, onReset }: Props) {
   const { destinyPath, personalYear, destinationAge, peaks, peakAges, challenges, gematria } = result;
-  const [activeTab, setActiveTab] = useState<"numerology" | "chakras" | "deep">("numerology");
+  const [activeTab, setActiveTab] = useState<"numerology" | "chakras" | "deep" | "energetic">("numerology");
   const [deepAnalysis, setDeepAnalysis] = useState<DeepAnalysisResult | null>(null);
   const [deepLoading, setDeepLoading] = useState(false);
   const [deepError, setDeepError] = useState("");
+  const [energeticAnalysis, setEnergeticAnalysis] = useState<EnergeticAnalysisResult | null>(null);
+  const [energeticLoading, setEnergeticLoading] = useState(false);
+  const [energeticError, setEnergeticError] = useState("");
   const [recordId, setRecordId] = useState<string>("");
 
   const MONTHS_HE = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 
   const chakras = calculateChakras(firstName, lastName, day, month, year);
+
+  async function fetchEnergeticAnalysis() {
+    if (energeticAnalysis || energeticLoading) return;
+    setEnergeticLoading(true);
+    setEnergeticError("");
+    try {
+      const res = await fetch("/api/energetic-diagnosis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstName, lastName, day, month, year, numerology: result, chakras }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "שגיאה באבחון");
+      }
+      const data: EnergeticAnalysisResult = await res.json();
+      setEnergeticAnalysis(data);
+    } catch (err) {
+      setEnergeticError(err instanceof Error ? err.message : "שגיאה באבחון");
+    } finally {
+      setEnergeticLoading(false);
+    }
+  }
 
   async function fetchDeepAnalysis() {
     if (deepAnalysis || deepLoading) return;
@@ -160,6 +187,12 @@ export default function ResultsPage({ result, firstName, lastName, day, month, y
             className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "deep" ? "bg-purple-600 text-white shadow-lg" : "text-white/50 hover:text-white/80"}`}
           >
             🔍 ניתוח מעמיק
+          </button>
+          <button
+            onClick={() => { setActiveTab("energetic"); fetchEnergeticAnalysis(); }}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === "energetic" ? "bg-purple-600 text-white shadow-lg" : "text-white/50 hover:text-white/80"}`}
+          >
+            🔬 אבחון
           </button>
         </div>
 
@@ -310,6 +343,38 @@ export default function ResultsPage({ result, firstName, lastName, day, month, y
               <div key={key} className={`${bg} ${border} border rounded-2xl p-5 mb-4`}>
                 <h3 className={`${text} font-bold text-base mb-3`}>{emoji} {label}</h3>
                 <p className="text-white/75 text-sm leading-relaxed">{deepAnalysis[key]}</p>
+              </div>
+            ))}
+          </>}
+        </>}
+
+        {/* ===== TAB: ENERGETIC DIAGNOSIS ===== */}
+        {activeTab === "energetic" && <>
+          {energeticLoading && (
+            <div className="flex flex-col items-center justify-center py-16 gap-4">
+              <div className="w-10 h-10 border-4 border-purple-400/30 border-t-purple-400 rounded-full animate-spin" />
+              <p className="text-purple-300 text-sm">מבצע אבחון אנרגטי...</p>
+            </div>
+          )}
+          {energeticError && (
+            <div className="bg-red-500/10 border border-red-400/30 rounded-2xl p-5 text-center">
+              <p className="text-red-300 text-sm mb-3">{energeticError}</p>
+              <button onClick={() => { setEnergeticError(""); fetchEnergeticAnalysis(); }}
+                className="px-4 py-2 rounded-xl border border-red-400/40 text-red-300 hover:bg-red-400/10 text-sm transition-all">
+                נסה שוב
+              </button>
+            </div>
+          )}
+          {energeticAnalysis && <>
+            {([
+              { key: "energyMap",             label: "מפת האנרגיה",         emoji: "🗺️", bg: "bg-indigo-500/10",  text: "text-indigo-300",  border: "border-indigo-400/25" },
+              { key: "psychoBodyDiagnosis",   label: "אבחון פסיכו-גופני",   emoji: "🧠", bg: "bg-purple-500/10",  text: "text-purple-300",  border: "border-purple-400/25" },
+              { key: "balancePoints",         label: "נקודות איזון",        emoji: "⚖️", bg: "bg-cyan-500/10",    text: "text-cyan-300",    border: "border-cyan-400/25" },
+              { key: "actionRecommendations", label: "המלצות מעשיות",       emoji: "🎯", bg: "bg-emerald-500/10", text: "text-emerald-300", border: "border-emerald-400/25" },
+            ] as const).map(({ key, label, emoji, bg, text, border }) => (
+              <div key={key} className={`${bg} ${border} border rounded-2xl p-5 mb-4`}>
+                <h3 className={`${text} font-bold text-base mb-3`}>{emoji} {label}</h3>
+                <p className="text-white/75 text-sm leading-relaxed">{energeticAnalysis[key]}</p>
               </div>
             ))}
           </>}
