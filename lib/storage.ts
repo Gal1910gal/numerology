@@ -1,5 +1,12 @@
 import { NumerologyResult } from "./numerology";
 
+export interface DeepAnalysis {
+  career: string;
+  relationships: string;
+  challenges: string;
+  strengths: string;
+}
+
 export interface AnalysisRecord {
   id: string;
   createdAt: string;
@@ -9,6 +16,7 @@ export interface AnalysisRecord {
   month: number;
   year: number;
   result: NumerologyResult;
+  deepAnalysis?: DeepAnalysis;
 }
 
 const KEY = "numerology_analyses";
@@ -49,6 +57,13 @@ export function loadAll(): AnalysisRecord[] {
   }
 }
 
+export function updateDeepAnalysis(id: string, deepAnalysis: DeepAnalysis) {
+  const records = loadAll().map((r) =>
+    r.id === id ? { ...r, deepAnalysis } : r
+  );
+  localStorage.setItem(KEY, JSON.stringify(records));
+}
+
 export function deleteRecord(id: string) {
   const existing = loadAll().filter((r) => r.id !== id);
   localStorage.setItem(KEY, JSON.stringify(existing));
@@ -64,6 +79,7 @@ export function exportToCsv(): string {
     "פסגה 1", "פסגה 2", "פסגה 3", "פסגה 4",
     "אתגר 1", "אתגר 2", "אתגר 3", "אתגר 4",
     "גימטריה פרטי", "גימטריה משפחה", "גימטריה סהכ",
+    "קריירה ותעסוקה", "זוגיות ומשפחה", "אתגרים ותיקון", "כוחות ומתנות",
   ];
 
   const rows = records.map((r) => [
@@ -73,6 +89,8 @@ export function exportToCsv(): string {
     r.result.peaks.p1, r.result.peaks.p2, r.result.peaks.p3, r.result.peaks.p4,
     r.result.challenges.c1, r.result.challenges.c2, r.result.challenges.c3, r.result.challenges.c4,
     r.result.gematria.firstName, r.result.gematria.lastName, r.result.gematria.total,
+    r.deepAnalysis?.career ?? "", r.deepAnalysis?.relationships ?? "",
+    r.deepAnalysis?.challenges ?? "", r.deepAnalysis?.strengths ?? "",
   ]);
 
   const csvContent = [headers, ...rows]

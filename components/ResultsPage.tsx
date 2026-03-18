@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { NumerologyResult } from "@/lib/numerology";
 import { DESTINY_PATH, PERSONAL_YEAR, PEAK_MEANINGS, CHALLENGE_MEANINGS, GEMATRIA_MEANINGS, isKarmic, isMaster } from "@/lib/interpretations";
-import { saveAnalysis, exportToCsv } from "@/lib/storage";
+import { saveAnalysis, updateDeepAnalysis, exportToCsv } from "@/lib/storage";
 import { calculateChakras } from "@/lib/chakras";
 import {
   BASIS_MEANINGS, SEX_CREATION_MEANINGS, SOLAR_PLEXUS_MEANINGS,
@@ -86,6 +86,7 @@ export default function ResultsPage({ result, firstName, lastName, day, month, y
   const [deepAnalysis, setDeepAnalysis] = useState<DeepAnalysisResult | null>(null);
   const [deepLoading, setDeepLoading] = useState(false);
   const [deepError, setDeepError] = useState("");
+  const [recordId, setRecordId] = useState<string>("");
 
   const MONTHS_HE = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 
@@ -107,6 +108,7 @@ export default function ResultsPage({ result, firstName, lastName, day, month, y
       }
       const data: DeepAnalysisResult = await res.json();
       setDeepAnalysis(data);
+      if (recordId) updateDeepAnalysis(recordId, data);
     } catch (err) {
       setDeepError(err instanceof Error ? err.message : "שגיאה בניתוח");
     } finally {
@@ -115,7 +117,8 @@ export default function ResultsPage({ result, firstName, lastName, day, month, y
   }
 
   useEffect(() => {
-    saveAnalysis(firstName, lastName, day, month, year, result);
+    const record = saveAnalysis(firstName, lastName, day, month, year, result);
+    setRecordId(record.id);
   }, []);
 
   function handleExport() {
