@@ -92,7 +92,14 @@ export function personalYear(
   const dayReduced = reduce(digitSum(day));
   const monthReduced = reduce(digitSum(month));
 
-  return reduce(dayReduced + monthReduced + yearValue);
+  const raw = reduce(dayReduced + monthReduced + yearValue);
+  // Personal year: only 1-9, 11, 22, 33 — karmic numbers reduce further
+  const KARMIC = [13, 14, 16, 19];
+  if (KARMIC.includes(raw)) {
+    const digits = String(raw).split("").reduce((s, d) => s + parseInt(d), 0);
+    return reduce(digits);
+  }
+  return raw;
 }
 
 // פסגות - peaks (inputs already reduced)
