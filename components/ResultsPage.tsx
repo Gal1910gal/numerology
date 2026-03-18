@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { NumerologyResult } from "@/lib/numerology";
 import { DESTINY_PATH, PERSONAL_YEAR, PEAK_MEANINGS, CHALLENGE_MEANINGS, GEMATRIA_MEANINGS, isKarmic, isMaster } from "@/lib/interpretations";
-import { saveAnalysis, updateDeepAnalysis, exportToCsv } from "@/lib/storage";
+import { saveAnalysis, updateDeepAnalysis } from "@/lib/storage";
+import { exportToExcel } from "@/lib/exportExcel";
+import { exportToWord } from "@/lib/exportWord";
 import { calculateChakras } from "@/lib/chakras";
 import {
   BASIS_MEANINGS, SEX_CREATION_MEANINGS, SOLAR_PLEXUS_MEANINGS,
@@ -148,14 +150,16 @@ export default function ResultsPage({ result, firstName, lastName, day, month, y
     setRecordId(record.id);
   }, []);
 
-  function handleExport() {
-    const csv = exportToCsv();
-    if (!csv) return;
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "numerology_analyses.csv"; a.click();
-    URL.revokeObjectURL(url);
+  function handleExportExcel() {
+    exportToExcel(firstName, lastName, day, month, year, result, chakras);
+  }
+
+  async function handleExportWord() {
+    if (!deepAnalysis && !energeticAnalysis) {
+      alert("יש להריץ לפחות ניתוח אחד (ניתוח מעמיק או אבחון) לפני ייצוא Word");
+      return;
+    }
+    await exportToWord(firstName, lastName, day, month, year, deepAnalysis, energeticAnalysis);
   }
 
   return (
@@ -381,12 +385,15 @@ export default function ResultsPage({ result, firstName, lastName, day, month, y
         </>}
 
         {/* Action buttons */}
-        <div className="flex gap-3 mt-2 mb-8">
+        <div className="flex gap-2 mt-2 mb-8">
           <button onClick={onReset} className="flex-1 py-3 rounded-xl border border-white/20 text-white/60 hover:text-white hover:border-white/40 transition-all text-sm">
             ← ניתוח חדש
           </button>
-          <button onClick={handleExport} className="flex-1 py-3 rounded-xl border border-purple-400/40 text-purple-300 hover:bg-purple-400/10 transition-all text-sm">
-            📊 ייצא כל הניתוחים
+          <button onClick={handleExportExcel} className="flex-1 py-3 rounded-xl border border-green-400/40 text-green-300 hover:bg-green-400/10 transition-all text-sm">
+            📊 Excel
+          </button>
+          <button onClick={handleExportWord} className="flex-1 py-3 rounded-xl border border-blue-400/40 text-blue-300 hover:bg-blue-400/10 transition-all text-sm">
+            📄 Word
           </button>
         </div>
       </div>
