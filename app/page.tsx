@@ -82,15 +82,23 @@ export default function Home() {
             )}
           </div>
         )}
+        <datalist id="firstNames">
+          {[...new Set(history.map(r => r.firstName))].map(n => <option key={n} value={n} />)}
+        </datalist>
+        <datalist id="lastNames">
+          {[...new Set(history.map(r => r.lastName))].map(n => <option key={n} value={n} />)}
+        </datalist>
         <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-2xl">
           <div className="mb-5">
             <label className="block text-purple-200 text-sm font-medium mb-1">שם פרטי בעברית</label>
-            <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="למשל: יעקב"
+            <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="למשל: גלית"
+              list="firstNames"
               className="w-full bg-white/10 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-purple-400 text-right text-lg" />
           </div>
           <div className="mb-5">
             <label className="block text-purple-200 text-sm font-medium mb-1">שם משפחה בעברית</label>
-            <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="למשל: בן בסט"
+            <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="למשל: גרינשטיין"
+              list="lastNames"
               className="w-full bg-white/10 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-purple-400 text-right text-lg" />
           </div>
           <div className="mb-6">
