@@ -4,7 +4,7 @@ import { NumerologyResult } from "@/lib/numerology";
 import { ChakraResult } from "@/lib/chakras";
 import { buildDiagnosisContext, DiagnosisContext } from "@/lib/chakraDiagnosis";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!, { apiVersion: "v1" } as never);
 
 export interface EnergeticAnalysisResult {
   energyMap: string;

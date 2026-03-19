@@ -4,7 +4,7 @@ import { buildDeepPrompt, SYSTEM_PROMPT } from "@/lib/deepPrompt";
 import { NumerologyResult } from "@/lib/numerology";
 import { ChakraResult } from "@/lib/chakras";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!, { apiVersion: "v1" } as never);
 
 export interface DeepAnalysisResult {
   career: string;
