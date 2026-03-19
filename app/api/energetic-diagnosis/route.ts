@@ -87,10 +87,12 @@ function buildEnergeticPrompt(
   day: number,
   month: number,
   year: number,
+  gender: "female" | "male",
   numerology: NumerologyResult,
   chakras: ChakraResult,
   ctx: DiagnosisContext
 ): string {
+  const genderLabel = gender === "female" ? "נקבה — פני אליה בלשון נקבה יחידה" : "זכר — פנה אליו בלשון זכר יחיד";
   const stateLines = ctx.chakras.map(c =>
     `${c.hebrewName}: ${c.value} → ${c.stateLabel}`
   ).join("\n");
@@ -113,7 +115,8 @@ function buildEnergeticPrompt(
   if (ctx.hasCrisisFlag) patterns.push("נטייה למשבר (7/13/14/16/19 בעין שלישית/מקלעת)");
   const patternsStr = patterns.length ? patterns.join(", ") : "לא זוהו דפוסים מיוחדים";
 
-  return `אבחון אנרגטי של ${firstName} ${lastName}, נולד/ה ${day}/${month}/${year}
+  return `אבחון אנרגטי של ${firstName} ${lastName}, נולד${gender === "female" ? "ה" : ""} ${day}/${month}/${year}
+מגדר: ${genderLabel}
 
 == מצב הצ'אקרות ==
 ${stateLines}
@@ -150,14 +153,15 @@ export async function POST(req: NextRequest) {
       day: number;
       month: number;
       year: number;
+      gender: "female" | "male";
       numerology: NumerologyResult;
       chakras: ChakraResult;
     };
 
-    const { firstName, lastName, day, month, year, numerology, chakras } = body;
+    const { firstName, lastName, day, month, year, gender, numerology, chakras } = body;
     const ctx = buildDiagnosisContext(chakras, numerology);
 
-    const prompt = buildEnergeticPrompt(firstName, lastName, day, month, year, numerology, chakras, ctx);
+    const prompt = buildEnergeticPrompt(firstName, lastName, day, month, year, gender, numerology, chakras, ctx);
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({

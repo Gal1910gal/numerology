@@ -14,12 +14,15 @@ export function buildDeepPrompt(
   day: number,
   month: number,
   year: number,
+  gender: "female" | "male",
   numerology: NumerologyResult,
   chakras: ChakraResult
 ): string {
   const { destinyPath, personalYear, destinationAge, peaks, peakAges, challenges, gematria } = numerology;
+  const genderLabel = gender === "female" ? "נקבה — פני אליה בלשון נקבה יחידה (את, שלך, לך)" : "זכר — פנה אליו בלשון זכר יחיד (אתה, שלך, לך)";
 
-  return `להלן המפה הנומרולוגית של ${firstName} ${lastName}, נולד/ה ${day}/${month}/${year}.
+  return `להלן המפה הנומרולוגית של ${firstName} ${lastName}, נולד${gender === "female" ? "ה" : ""} ${day}/${month}/${year}.
+מגדר: ${genderLabel}
 
 == נומרולוגיה ==
 שביל גורל: ${destinyPath}

@@ -22,6 +22,7 @@ interface Props {
   day: number;
   month: number;
   year: number;
+  gender: "female" | "male";
   onReset: () => void;
 }
 
@@ -83,7 +84,7 @@ function ChakraCard({ name, emoji, number, extra, meaning, bgClass, textClass, b
   );
 }
 
-export default function ResultsPage({ result, firstName, lastName, day, month, year, onReset }: Props) {
+export default function ResultsPage({ result, firstName, lastName, day, month, year, gender, onReset }: Props) {
   const { destinyPath, personalYear, destinationAge, peaks, peakAges, challenges, gematria } = result;
   const [activeTab, setActiveTab] = useState<"numerology" | "chakras" | "deep" | "energetic">("numerology");
   const [deepAnalysis, setDeepAnalysis] = useState<DeepAnalysisResult | null>(null);
@@ -106,7 +107,7 @@ export default function ResultsPage({ result, firstName, lastName, day, month, y
       const res = await fetch("/api/energetic-diagnosis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, day, month, year, numerology: result, chakras }),
+        body: JSON.stringify({ firstName, lastName, day, month, year, gender, numerology: result, chakras }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -129,7 +130,7 @@ export default function ResultsPage({ result, firstName, lastName, day, month, y
       const res = await fetch("/api/deep-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, day, month, year, numerology: result, chakras }),
+        body: JSON.stringify({ firstName, lastName, day, month, year, gender, numerology: result, chakras }),
       });
       if (!res.ok) {
         const data = await res.json();

@@ -19,11 +19,12 @@ export async function POST(req: NextRequest) {
       day: number;
       month: number;
       year: number;
+      gender: "female" | "male";
       numerology: NumerologyResult;
       chakras: ChakraResult;
     };
 
-    const { firstName, lastName, day, month, year, numerology, chakras } = body;
+    const { firstName, lastName, day, month, year, gender, numerology, chakras } = body;
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
       systemInstruction: SYSTEM_PROMPT,
     });
 
-    const prompt = buildDeepPrompt(firstName, lastName, day, month, year, numerology, chakras);
+    const prompt = buildDeepPrompt(firstName, lastName, day, month, year, gender, numerology, chakras);
     const result = await model.generateContent(prompt);
     const raw = result.response.text();
 

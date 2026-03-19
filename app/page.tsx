@@ -11,6 +11,7 @@ export default function Home() {
   const [day, setDay] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
+  const [gender, setGender] = useState<"female" | "male">("female");
   const [result, setResult] = useState<NumerologyResult | null>(null);
   const [error, setError] = useState("");
   const [history, setHistory] = useState<AnalysisRecord[]>([]);
@@ -45,7 +46,7 @@ export default function Home() {
   }
 
   if (result) {
-    return <ResultsPage result={result} firstName={firstName} lastName={lastName} day={parseInt(day)} month={parseInt(month)} year={parseInt(year)} onReset={handleReset} />;
+    return <ResultsPage result={result} firstName={firstName} lastName={lastName} day={parseInt(day)} month={parseInt(month)} year={parseInt(year)} gender={gender} onReset={handleReset} />;
   }
 
   return (
@@ -89,6 +90,19 @@ export default function Home() {
           {[...new Set(history.map(r => r.lastName))].map(n => <option key={n} value={n} />)}
         </datalist>
         <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-2xl">
+          <div className="mb-5">
+            <label className="block text-purple-200 text-sm font-medium mb-2">מגדר</label>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => setGender("female")}
+                className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all ${gender === "female" ? "bg-pink-500/30 border-pink-400/60 text-pink-200" : "bg-white/5 border-white/20 text-white/50 hover:text-white/80"}`}>
+                ♀ נקבה
+              </button>
+              <button type="button" onClick={() => setGender("male")}
+                className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all ${gender === "male" ? "bg-blue-500/30 border-blue-400/60 text-blue-200" : "bg-white/5 border-white/20 text-white/50 hover:text-white/80"}`}>
+                ♂ זכר
+              </button>
+            </div>
+          </div>
           <div className="mb-5">
             <label className="block text-purple-200 text-sm font-medium mb-1">שם פרטי בעברית</label>
             <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="למשל: גלית"
